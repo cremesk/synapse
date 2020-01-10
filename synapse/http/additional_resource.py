@@ -29,6 +29,10 @@ class AdditionalResource(Resource):
     and exception handling.
     """
 
+    # tell the twisted dispatch mechanism to use this Resource for all URIs below
+    # the bound path
+    isLeaf = True
+
     def __init__(self, hs, handler):
         """Initialise AdditionalResource
 
