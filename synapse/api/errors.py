@@ -24,6 +24,8 @@ from six.moves import http_client
 
 from canonicaljson import json
 
+from twisted.web import http
+
 logger = logging.getLogger(__name__)
 
 
@@ -78,6 +80,23 @@ class CodeMessageException(RuntimeError):
         super(CodeMessageException, self).__init__("%d: %s" % (code, msg))
         self.code = code
         self.msg = msg
+
+
+class RedirectException(CodeMessageException):
+    """A pseudo-error indicating that we want to redirect the client to a different
+    location
+    """
+
+    def __init__(self, location: bytes, http_code: int = http.FOUND):
+        """
+
+        Args:
+            location: the URI to redirect to
+            http_code: the HTTP response code
+        """
+        msg = "Redirect to %s" % (location.decode("utf-8"),)
+        super().__init__(code=http_code, msg=msg)
+        self.location = location
 
 
 class SynapseError(CodeMessageException):
