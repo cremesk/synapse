@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class ModuleApi(object):
-    """A proxy object that gets passed to password auth providers so they
+    """A proxy object that gets passed to various plugin modules so they
     can register new users etc if necessary.
     """
 
@@ -135,6 +135,28 @@ class ModuleApi(object):
             user_id=user_id,
             device_id=device_id,
             initial_display_name=initial_display_name,
+        )
+
+    def record_user_external_id(
+        self, auth_provider_id: str, remote_user_id: str, registered_user_id: str
+    ) -> defer.Deferred:
+        """Record a mapping from an external user id to a mxid
+
+        Args:
+            auth_provider: identifier for the remote auth provider
+            external_id: id on that system
+            user_id: complete mxid that it is mapped to
+        """
+        return self._store.record_user_external_id(
+            auth_provider_id, remote_user_id, registered_user_id
+        )
+
+    def generate_short_term_login_token(
+        self, user_id: str, duration_in_ms: int = (2 * 60 * 1000)
+    ) -> str:
+        """Generate a login token suitable for m.login.token authentication"""
+        return self.hs.get_macaroon_generator().generate_short_term_login_token(
+            user_id, duration_in_ms
         )
 
     @defer.inlineCallbacks
